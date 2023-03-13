@@ -1,9 +1,9 @@
 {
-  "name": "vue-project",
+  "name": "vue-project1",
   "description": "A Vue.js project",
   "version": "1.0.0",
   "author": "Intmas",
-  "license": "No",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
@@ -12,8 +12,11 @@
   "dependencies": {
     "@vuelidate/core": "^2.0.0",
     "@vuelidate/validators": "^2.0.0",
+    "bootstrap-icons": "^1.10.3",
     "vue": "^2.5.11",
     "vue-router": "^3.6.5",
+    "vue-toast-notification": "^0.6.3",
+    "vue-toasted": "^1.1.28",
     "vuelidate": "^0.7.7"
   },
   "browserslist": [
