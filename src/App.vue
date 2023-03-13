@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
         <div class="collapse navbar-collapse">
-          <ul class="navbar-nav nav-item">
+          <ul class="navbar-nav nav-item" style="padding-left: 355px">
             <router-link
               tag="li"
               exact to="/"
@@ -62,6 +62,5 @@ a {
 input {
   margin: 2px;
 }
-
 
 </style>

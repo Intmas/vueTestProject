@@ -1,5 +1,8 @@
 <template>
-  <h1>Welcome!</h1>
+  <div>
+    <h1>Welcome!</h1>
+    <i class="bi bi-bell"></i>
+  </div>
 </template>
 
 <script>

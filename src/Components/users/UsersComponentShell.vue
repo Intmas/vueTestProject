@@ -1,30 +1,29 @@
 <template>
 <div class="container">
-  <add-user v-show="!showBtn" :usersArr="usersArr" :selectedUser="selectedUser"></add-user>
-  <users-list  v-show="showBtn" :usersArr="usersArr" @getSelectedUser="selectedUser = $event"></users-list>
+  <modal-admin-menu></modal-admin-menu>
+  <user-form v-show="!showMenuBtn" :usersArr="usersArr"></user-form>
+  <users-list v-show="showMenuBtn" :usersArr="usersArr"></users-list>
   <div class="row">
     <div class="col">
-      <button v-show="showBtn" type="button" @click="gotoAddUserPage" class="btn btn-success">Add user</button>
-      <button v-show="showBtn" type="button" @click="gotoEditUserPage" class="btn btn-info rightTextColor">Edit user</button>
-      <button v-show="showBtn" type="button" @click="openList" class="btn btn-info rightTextColor2">Users list</button>
-      <button v-show="showBtn" type="button" @click="deleteUser" class="btn btn-danger">Delete user</button>
+      <button v-show="showMenuBtn" type="button" @click="gotoAddUserForm" class="btn btn-success">Add user</button>
+      <button v-show="showMenuBtn" type="button" @click="gotoEditUserForm" :disabled="selectedUsersLength !== 1" class="btn btn-info">Edit user</button>
+      <button v-show="showMenuBtn" type="button" @click="clearSelection" :disabled="selectedUsersLength === 0" class="btn btn-info">Clear selection</button>
+      <button v-show="showMenuBtn" type="button" @click="deleteUser" :disabled="selectedUsersLength === 0" class="btn btn-danger">Delete user</button>
     </div>
   </div>
-  <span>select one user to edit</span><br>
-  <span>select one or more users to delete</span>
 </div>
 </template>
 
 <script>
-import EditUser from "./EditUser.vue"
 import UsersList from "./UsersList.vue";
-import AddUser from "./AddUser.vue";
+import UserForm from "./UserForm.vue";
+import ModalAdminMenu from "./ModalAdminMenu.vue";
 export default {
   name: "UsersComponentShell",
   components: {
-    EditUser,
+    ModalAdminMenu,
     UsersList,
-    AddUser
+    UserForm
   },
   data() {
     return {
@@ -36,44 +35,47 @@ export default {
         {name: 'Евгений', dateOfBirth: '04-10-1997', pass: 'Tsasf*3_eF', email: 'ascfe@mail.com'},
       ],
       user: {},
-      showBtn: true,
-      addMode: false,
-      editMode: false,
+      showMenuBtn: true,
       deleteMode: false,
-      selectedUser: '',
+      selectedUser: [],
+      amountUsers: 0,
     }
   },
   methods: {
-    gotoAddUserPage(){
-      console.log("goto addUserPage ")
-      this.selectedUser = ''
-      this.showBtn = false;
+    gotoAddUserForm(){
+      this.$eventBus.$emit('selectedUser', [])
+      this.showMenuBtn = false;
+    },
+    gotoEditUserForm(){
+      this.$eventBus.$emit('selectedUser', this.selectedUser)
+      this.showMenuBtn = false;
     },
     gotoUserList(){
-      this.showBtn = true
+      this.clearSelection()
+      this.selectedUser = []
+      this.showMenuBtn = true
     },
     addUser(user){
-      console.log("add user ", user)
       this.usersArr.push(user)
     },
     editUser(user, position){
-      console.log("add user ", user)
-      this.usersArr.push(user)
-    },
-    gotoEditUserPage(){
-      console.log("edit user ")
-      console.log(this.selectedUser)
-      this.$eventBus.$emit('editUser')
-      this.showBtn = false;
-    },
-    openList(){
-      console.log("open list of user ")
-      this.editMode = false;
-      this.addMode = false;
+      console.log(Object.keys(this.usersArr))
+      console.log(Object.keys(this.user))
+      this.usersArr[position].name = user.name
+      this.usersArr[position].pass = user.pass
+      this.usersArr[position].dateOfBirth = user.dateOfBirth
+      this.usersArr[position].email = user.email
     },
     deleteUser(){
       console.log("delete user ")
       this.$eventBus.$emit('callDeleteUser')
+    },
+    clearSelection(){
+      this.selectedUser = []
+      this.$eventBus.$emit('selectionCleared')
+    },
+    getSelectedUsers(selectedUser) {
+      this.selectedUser = selectedUser
     },
   },
   mounted() {
@@ -86,10 +88,25 @@ export default {
     this.$eventBus.$on('editFormSubmitted', (user, position) => {
       this.editUser(user, position);
     })
-  }
+    this.$eventBus.$on('getSelectedUser', (selectedUser) => {
+      this.getSelectedUsers(selectedUser);
+    })
+  },
+  computed: {
+    selectedUsersLength(){
+      return this.selectedUser.length
+    },
+  },
+  created() {
+    document.addEventListener('keydown', (event) =>{
+      if(event.altKey && event.code === "KeyX") {
+        this.$eventBus.$emit('showModal')
+        event.preventDefault();
+      }
+    });
+  },
 }
 </script>
 
 <style scoped>
-
 </style>
