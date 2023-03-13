@@ -27,13 +27,14 @@ export default {
   },
   data() {
     return {
-      usersArr: [
-        {name: 'Владислав', dateOfBirth: '17-08-2001', pass: 'Tr54*3_eF', email: 'sdf@mail.com'},
-        {name: 'Андрей', dateOfBirth: '08-12-2000', pass: 'Tsaf*3_eF', email: 'asdx15@mail.com'},
-        {name: 'Ольга', dateOfBirth: '15-07-1986', pass: 'Tsaasdwf*3_eF', email: 'as15@mail.com'},
-        {name: 'Наталья', dateOfBirth: '24-12-1999', pass: 'Tsafyt*3_eF', email: 'ddfx15@mail.com'},
-        {name: 'Евгений', dateOfBirth: '04-10-1997', pass: 'Tsasf*3_eF', email: 'ascfe@mail.com'},
-      ],
+      usersArr: '',
+      usersCopy: [
+      {name: 'Владислав', dateOfBirth: '17-08-2001', pass: 'Tr54*3_eF', email: 'sdf@mail.com'},
+      {name: 'Андрей', dateOfBirth: '08-12-2000', pass: 'Tsaf*3_eF', email: 'asdx15@mail.com'},
+      {name: 'Ольга', dateOfBirth: '15-07-1986', pass: 'Tsaasdwf*3_eF', email: 'as15@mail.com'},
+      {name: 'Наталья', dateOfBirth: '24-12-1999', pass: 'Tsafyt*3_eF', email: 'ddfx15@mail.com'},
+      {name: 'Евгений', dateOfBirth: '04-10-1997', pass: 'Tsasf*3_eF', email: 'ascfe@mail.com'},
+    ],
       user: {},
       showMenuBtn: true,
       deleteMode: false,
@@ -57,6 +58,10 @@ export default {
     },
     addUser(user){
       this.usersArr.push(user)
+      this.pushDataToLocalStorage()
+    },
+    pushDataToLocalStorage(){
+      localStorage.setItem('users', JSON.stringify(this.usersArr))
     },
     editUser(user, position){
       console.log(Object.keys(this.usersArr))
@@ -65,6 +70,7 @@ export default {
       this.usersArr[position].pass = user.pass
       this.usersArr[position].dateOfBirth = user.dateOfBirth
       this.usersArr[position].email = user.email
+      this.pushDataToLocalStorage()
     },
     deleteUser(){
       console.log("delete user ")
@@ -77,6 +83,20 @@ export default {
     getSelectedUsers(selectedUser) {
       this.selectedUser = selectedUser
     },
+  },
+  computed: {
+    selectedUsersLength(){
+      return this.selectedUser.length
+    },
+  },
+  created() {
+    document.addEventListener('keydown', (event) =>{
+      if(event.altKey && event.code === "KeyX") {
+        this.$eventBus.$emit('showModal')
+        event.preventDefault();
+      }
+    });
+    this.usersArr = JSON.parse(localStorage.getItem('users'))
   },
   mounted() {
     this.$eventBus.$on('handlerСanceled', () => {
@@ -91,19 +111,6 @@ export default {
     this.$eventBus.$on('getSelectedUser', (selectedUser) => {
       this.getSelectedUsers(selectedUser);
     })
-  },
-  computed: {
-    selectedUsersLength(){
-      return this.selectedUser.length
-    },
-  },
-  created() {
-    document.addEventListener('keydown', (event) =>{
-      if(event.altKey && event.code === "KeyX") {
-        this.$eventBus.$emit('showModal')
-        event.preventDefault();
-      }
-    });
   },
 }
 </script>

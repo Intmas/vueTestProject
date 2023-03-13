@@ -26,14 +26,22 @@
       <button class="btn btn-info" @click="prevPage" :disabled="currPage == 0"><</button>
       <button @click="nextPage" :disabled="currPage >= amountUsers/recordQuantity-1" class="btn btn-info">></button>
       <span>Record on the page: </span>
-      <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="5">
-      <label>5</label>
-      <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="10">
-      <label>10</label>
-      <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="15">
-      <label>15</label>
-      <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="20">
-      <label>20</label>
+      <label>
+        <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="5">
+        5
+      </label>
+      <label>
+        <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="10">
+        10
+      </label>
+      <label>
+        <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="15">
+        15
+      </label>
+      <label>
+        <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="20">
+        20
+      </label>
       <label>
         <input type="radio" class="radio" @click="backToFirstPage" v-model="recordQuantity" :value="40">
         40
@@ -47,7 +55,7 @@
 <script>
 
 export default {
-  props: ['usersArr'],
+  props: ['usersArr', 'users'],
   name: "UsersList",
   data() {
     return {
@@ -64,6 +72,7 @@ export default {
         let position = this.usersArr.findIndex(user => user.name === nameDel)
         this.usersArr.splice(position, 1)
       }
+      localStorage.setItem('users', JSON.stringify(this.usersArr))
       this.selectedUsers = []
     },
     prevPage(){
@@ -85,7 +94,6 @@ export default {
           behavior: "smooth"
         })
       }, 1000)
-
     },
   },
   computed: {
@@ -93,7 +101,6 @@ export default {
       return this.usersArr.length
     },
     getCurrUsers(){
-      console.log(this.currPage*this.recordQuantity, ' ', this.currPage*this.recordQuantity + this.recordQuantity )
       let start = this.currPage*this.recordQuantity
       return this.usersArr.slice(start, start + this.recordQuantity)
     }
@@ -124,7 +131,6 @@ export default {
   created() {
     this.amountUsers = this.getAmountUsers
     this.currUsers = this.getCurrUsers
-    console.log(this.currUsers)
   },
 }
 </script>

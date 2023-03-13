@@ -1,23 +1,21 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav nav-item" style="padding-left: 355px">
-            <router-link
-              tag="li"
-              exact to="/"
-              active-class="active">
-              <a class="nav-link">Home</a>
-            </router-link>
-            <router-link
-              tag="li"
-              exact to="/users"
-              active-class="active">
-              <a class="nav-link">Party keeper</a>
-            </router-link>
-          </ul>
-        </div>
+    <nav class="container navbar navbar-expand-lg bg-body-tertiary">
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav nav-item">
+          <router-link
+            tag="li"
+            exact to="/"
+            active-class="active">
+            <a class="nav-link">Home</a>
+          </router-link>
+          <router-link
+            tag="li"
+            exact to="/users"
+            active-class="active">
+            <a class="nav-link">Party keeper</a>
+          </router-link>
+        </ul>
       </div>
     </nav>
     <router-view></router-view>
@@ -36,6 +34,14 @@
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.bi {
+  font-size: 25px;
+}
+
+.navbar-expand-lg {
+  padding-left: 0px;
 }
 
 p {

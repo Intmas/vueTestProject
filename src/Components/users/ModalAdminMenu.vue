@@ -3,8 +3,21 @@
     <div class="row">
       <div class="modal-content col-3">
         <span class="close">&times;</span>
-        <label>Enter the number of new users</label>
-        <input type="number" v-model="amount" class="form-control">
+        <label>Enter the number of new users
+          <input required type="number" v-model="generateParam.amount" class="form-control">
+        </label>
+        <label>Enter the number of characters in the name
+          <input required type="number" v-model="generateParam.numberOfChar" class="form-control">
+        </label>
+        <label>Select generation
+          <select v-model="generateParam.ageRange" class="form-select">
+            <option value="14 22">14 - 22</option>
+            <option value="23 29">23 - 29</option>
+            <option value="30 44">30 - 44</option>
+            <option value="45 60">45 - 60</option>
+          </select>
+
+        </label>
         <button @click="generateUsers" class="btn btn-outline-secondary my-2">Generate new users</button>
       </div>
     </div>
@@ -15,7 +28,11 @@
 export default {
   data() {
     return {
-      amount: 0
+      generateParam: {
+        amount: 0,
+        numberOfChar: 4,
+        ageRange: "14 22",
+      },
     }
   },
   methods: {
@@ -36,7 +53,7 @@ export default {
     generateUsers(){
       let modal = document.getElementById("myModal");
       modal.style.display = "none";
-      this.$eventBus.$emit('usersGenerated', this.amount)
+      this.$eventBus.$emit('usersGenerated', this.generateParam)
     }
   },
   mounted() {

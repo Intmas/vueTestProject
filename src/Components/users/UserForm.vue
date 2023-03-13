@@ -154,30 +154,33 @@ export default {
       this.dateOfBirth = this.user.dateOfBirth
       this.validatedEmail = this.user.email
     },
-    fillNewUser(){
+    fillNewUser(numberOfChar, age, currYear){
       // get parameter generation
-      let currYear = new Date().getFullYear();
-      let m31 = ['01', '03', '05', '07', '08', '10', '12']
+      //name and password
       this.name = 'N'
-      for (let i = 0; i < 5; i++) {
-        this.name += String.fromCharCode(Math.floor((Math.random() * 25)+97))
+      for (let i = 0; i < numberOfChar; i++) {
+        this.name += String.fromCharCode(Math.floor((Math.random() * (25+1))+97))
       }
       this.password = Math.random().toString(36).slice(-8);
       this.validatedEmail = this.name + this.id + "@mail.auto"
 
-      let mm = this.addZero(Math.floor((Math.random() * 12)+1))
-      let dd = ''
+      //date of birth
       let amountOfDay = 30
+      let dd = ''
+      let m31 = ['01', '03', '05', '07', '08', '10', '12']
+      let mm = this.addZero(Math.floor((Math.random() * (12+1))+1))
       if(mm == '02') amountOfDay = 28
       else if(m31.find(el => el == mm)) amountOfDay = 31
       dd = this.addZero(Math.floor((Math.random() * amountOfDay)+1).toString())
-      let year = '89'
-      this.dateOfBirth = mm + '-' + dd + '-' + '19' + year
+      let year = currYear - Math.floor(Math.random() * (parseInt(age[1]) + 1 - parseInt(age[0])) + parseInt(age[0]));
+
+      this.dateOfBirth = mm + '-' + dd + '-' + year
     },
-    createAutoNewUser(amount){
-      for (let i = 0; i < amount; i++) {
-        this.fillNewUser()
-        // this.$v.valid = true
+    createAutoNewUser(params){
+      let age = params.ageRange.split(" ")
+      let currYear = new Date().getFullYear();
+      for (let i = 0; i < params.amount; i++) {
+        this.fillNewUser(params.numberOfChar, age, currYear)
         this.createNewUser()
         this.cancelHandler()
       }
@@ -192,8 +195,8 @@ export default {
       if (selectedUser.length) this.setOldInfo(selectedUser)
     }),
 
-    this.$eventBus.$on('usersGenerated', (amount) => {
-      this.createAutoNewUser(amount);
+    this.$eventBus.$on('usersGenerated', (params) => {
+      this.createAutoNewUser(params);
     })
   },
 }
