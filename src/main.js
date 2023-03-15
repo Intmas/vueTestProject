@@ -6,16 +6,17 @@ import router from "./routes";
 import Toasted from 'vue-toasted';
 import 'vue-toast-notification/dist/theme-sugar.css';
 
-
 Vue.prototype.$eventBus = new Vue();
 
 Vue.use(Toasted, {
   duration: 2000,
   position: 'bottom-left',
   theme: "bubble",
-});
+})
 Vue.use(VueRouter)
 Vue.use(Vuelidate)
+//Vue.use(dateConverter)
+
 new Vue({
   el: '#app',
   render: h => h(App),

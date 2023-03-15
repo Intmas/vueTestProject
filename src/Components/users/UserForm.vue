@@ -27,13 +27,11 @@
      <div class="invalid-feedback" v-if="!$v.password.minLength">Min length of password is {{ $v.password.$params.minLength.min }}. Now it is {{ password.length }}</div>
 
      <label>Date of birth</label>
-       <input
-         type="date"
-         class="form-control"
-         v-model="dateOfBirth"
-         pattern="\d{4}:\d{2}:\d{2}"
-         lang="ru-Ru"
-       >
+     <input
+       type="date"
+       class="form-control"
+       v-model="dateOfBirth"
+     >
      <label> Email</label>
      <input
        type="email"
@@ -80,6 +78,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required, email, minLength, alphaNum } from 'vuelidate/lib/validators'
+import dateConverter from "../../Utils/dateConverter";
 
 export default {
   props: ['usersArr'],
@@ -95,6 +94,7 @@ export default {
       dateOfBirth: {},
       timestamp: 0,
       id: 0,
+      formatter: {},
       currYear: new Date().getFullYear()
     }
   },
@@ -149,8 +149,7 @@ export default {
       this.user = {}
       this.user.name = this.name
       this.user.pass = this.password
-      //
-      this.user.dateOfBirth = this.dateOfBirth
+      this.user.dateOfBirth = Date.parse(this.dateOfBirth)
       this.user.email = this.validatedEmail
     },
     setOldInfo(selectedUser) {
@@ -159,7 +158,8 @@ export default {
       this.user = this.usersArr[this.position]
       this.name = this.user.name
       this.password = this.user.pass
-      this.dateOfBirth = this.user.dateOfBirth
+      this.dateOfBirth =  this.formatter.getDateInputFormat(this.user.dateOfBirth)
+      this.timestamp = this.user.dateOfBirth
       this.validatedEmail = this.user.email
     },
     fillNewUser(numberOfChar, age){
@@ -190,8 +190,8 @@ export default {
       dd = (Math.floor((Math.random() * amountOfDay)+1))
       let yyyy = this.currYear - Math.floor(Math.random() * (parseInt(age[1]) + 1 - parseInt(age[0])) + parseInt(age[0]));
       let generatedDate = new Date(yyyy, mm-1, dd)
-      this.dateOfBirth = Date.parse(generatedDate)
-      console.log("%%% ", generatedDate)
+      this.timestamp = Date.parse(generatedDate)
+      this.dateOfBirth = this.formatter.getDateInputFormat(this.timestamp)
     },
     createAutoNewUser(params){
       let age = params.ageRange.split(" ")
@@ -203,6 +203,7 @@ export default {
     },
   },
   mounted() {
+    this.formatter = new dateConverter();
     this.$eventBus.$on('selectedUser', (selectedUser) => {
       if (selectedUser.length) this.setOldInfo(selectedUser)
     })

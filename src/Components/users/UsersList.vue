@@ -17,13 +17,13 @@
         <div class="list">
           <div class="centerEl"><input class="form-check-input" type="checkbox" :value="user.name" v-model="selectedUsers"></div>
           <div>{{ user.name }}</div>
-          <div>{{ getDateOfBirth(user.dateOfBirth) }}</div>
+          <div>{{ formatter.getDateFormat(user.dateOfBirth) }}</div>
           <div>{{ user.email }}</div>
         </div>
       </li>
     </ul>
     <div class="pagerBox">
-      <button class="btn btn-info" @click="prevPage" :disabled="currPage == 0"><</button>
+      <button class="btn btn-info" @click="prevPage" :disabled="currPage === 0"><</button>
       <button @click="nextPage" :disabled="currPage >= amountUsers/recordQuantity-1" class="btn btn-info">></button>
       <span>Record on the page: </span>
       <label>
@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import DateConverter from "../../Utils/dateConverter";
 
 export default {
   props: ['usersArr', 'users'],
@@ -65,9 +66,11 @@ export default {
       recordQuantity: 5,
       currUsers: [],
       userDateOfBirth: '',
+      formatter: {}
     }
   },
   methods: {
+    formatFunc(){},
     deleteUsers() {
       for (let nameDel of this.selectedUsers) {
         let position = this.usersArr.findIndex(user => user.name === nameDel)
@@ -96,17 +99,6 @@ export default {
         })
       }, 1000)
     },
-    getDateOfBirth(dateOfBirth) {
-      let date = new Date(dateOfBirth)
-      let dd = this.addZero(date.getDate())
-      let mm = this.addZero(date.getMonth())
-      let yyyy = date.getFullYear()
-      return dd + '-' + mm + '-' + yyyy
-    },
-    addZero(number){
-      if(number < '10') number = '0' + number
-      return number
-    },
   },
   computed: {
     getAmountUsers() {
@@ -131,11 +123,10 @@ export default {
     recordQuantity(){
       this.currUsers = this.getCurrUsers
     },
-    userDateOfBirth(){
-      getDateOfBirth()
-    }
   },
   mounted() {
+    this.formatter = new DateConverter();
+    console.log("dateConverter: ", this.formatter.getTest());
     this.$eventBus.$on('callDeleteUser', () => {
       this.deleteUsers()
     })
