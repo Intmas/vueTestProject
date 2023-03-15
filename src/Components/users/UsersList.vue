@@ -17,7 +17,7 @@
         <div class="list">
           <div class="centerEl"><input class="form-check-input" type="checkbox" :value="user.name" v-model="selectedUsers"></div>
           <div>{{ user.name }}</div>
-          <div>{{ user.dateOfBirth }}</div>
+          <div>{{ getDateOfBirth(user.dateOfBirth) }}</div>
           <div>{{ user.email }}</div>
         </div>
       </li>
@@ -64,6 +64,7 @@ export default {
       currPage: 0,
       recordQuantity: 5,
       currUsers: [],
+      userDateOfBirth: '',
     }
   },
   methods: {
@@ -95,6 +96,17 @@ export default {
         })
       }, 1000)
     },
+    getDateOfBirth(dateOfBirth) {
+      let date = new Date(dateOfBirth)
+      let dd = this.addZero(date.getDate())
+      let mm = this.addZero(date.getMonth())
+      let yyyy = date.getFullYear()
+      return dd + '-' + mm + '-' + yyyy
+    },
+    addZero(number){
+      if(number < '10') number = '0' + number
+      return number
+    },
   },
   computed: {
     getAmountUsers() {
@@ -103,7 +115,7 @@ export default {
     getCurrUsers(){
       let start = this.currPage*this.recordQuantity
       return this.usersArr.slice(start, start + this.recordQuantity)
-    }
+    },
   },
   watch: {
     selectedUsers(selectedUsers) {
@@ -118,6 +130,9 @@ export default {
     },
     recordQuantity(){
       this.currUsers = this.getCurrUsers
+    },
+    userDateOfBirth(){
+      getDateOfBirth()
     }
   },
   mounted() {

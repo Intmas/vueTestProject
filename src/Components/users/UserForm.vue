@@ -1,9 +1,9 @@
 <template>
  <div>
-  <h2 v-if="selectedUser.length === 0">New users</h2>
-  <h2 v-else>Edit users</h2>
+   <h2 v-if="selectedUser.length === 0">New users</h2>
+   <h2 v-else>Edit users</h2>
    <h5>Input data of user</h5>
-   <form>
+   <form class="user-form">
      <label>Name</label>
      <input
        type="name"
@@ -27,12 +27,14 @@
      <div class="invalid-feedback" v-if="!$v.password.minLength">Min length of password is {{ $v.password.$params.minLength.min }}. Now it is {{ password.length }}</div>
 
      <label>Date of birth</label>
-     <input
-       type="date"
-       class="form-control"
-       v-model="dateOfBirth"
-     >
-     <label for="email"> Email</label>
+       <input
+         type="date"
+         class="form-control"
+         v-model="dateOfBirth"
+         pattern="\d{4}:\d{2}:\d{2}"
+         lang="ru-Ru"
+       >
+     <label> Email</label>
      <input
        type="email"
        class="form-control"
@@ -42,6 +44,7 @@
      >
      <div class="invalid-feedback" v-if="!$v.validatedEmail.required" >Email field is required</div>
      <div class="invalid-feedback" v-if="!$v.validatedEmail.email" >This field should be an email</div>
+
      <button
        class="btn btn-outline-secondary my-2"
        :disabled="$v.$invalid"
@@ -49,10 +52,11 @@
        @click.prevent="createNewUser"
      >Save Information
      </button>
+
      <button
        class="btn btn-outline-secondary my-2"
        v-if="selectedUser.length === 0"
-       @click.prevent="fillNewUser"
+       @click.prevent="fillNewUser(5)"
      >Fill in the fields
      </button>
 
@@ -63,6 +67,7 @@
        @click.prevent="editUser"
      >Edit Information
      </button>
+
      <button
        class="btn btn-outline-secondary my-2"
        @click.prevent="cancelHandler"
@@ -80,14 +85,17 @@ export default {
   props: ['usersArr'],
   data() {
     return {
+      date: new Date(),
       name: '',
       validatedEmail: '',
       password: '',
       user: {},
       position: '',
       selectedUser: [],
-      dateOfBirth: '',
-      id: 0
+      dateOfBirth: {},
+      timestamp: 0,
+      id: 0,
+      currYear: new Date().getFullYear()
     }
   },
   mixins: [validationMixin],
@@ -96,7 +104,7 @@ export default {
       required,
       email,
       unique: function (newEmail) {
-        return this.usersArr.find(user => user.mail == newEmail) == undefined
+        return this.usersArr.find(user => user.mail === newEmail) === undefined
       }
     },
     password: {
@@ -110,19 +118,6 @@ export default {
     }
   },
   methods: {
-    createNewUser: function () {
-      this.setUserInfo()
-      this.id++
-      this.$eventBus.$emit("addFormSubmitted", this.user)
-      this.clearForm()
-      this.$toasted.success('User added!')
-    },
-    editUser: function () {
-      this.setUserInfo()
-      this.$eventBus.$emit("editFormSubmitted", this.user, this.position)
-      this.$toasted.success('User edited!')
-      this.cancelHandler()
-    },
     cancelHandler(){
       this.clearForm()
       this.$eventBus.$emit("handlerСanceled")
@@ -136,6 +131,19 @@ export default {
       this.position = ''
       this.selectedUser = []
       this.$v.$reset()
+    },
+    createNewUser: function () {
+      this.setUserInfo()
+      this.id++
+      this.$eventBus.$emit("addFormSubmitted", this.user)
+      this.clearForm()
+      this.$toasted.success('User added!')
+    },
+    editUser: function () {
+      this.setUserInfo()
+      this.$eventBus.$emit("editFormSubmitted", this.user, this.position)
+      this.$toasted.success('User edited!')
+      this.cancelHandler()
     },
     setUserInfo(){
       this.user = {}
@@ -154,7 +162,10 @@ export default {
       this.dateOfBirth = this.user.dateOfBirth
       this.validatedEmail = this.user.email
     },
-    fillNewUser(numberOfChar, age, currYear){
+    fillNewUser(numberOfChar, age){
+      if(age === undefined) {
+        age = ['14', '65']
+      }
       // get parameter generation
       //name and password
       this.name = 'N'
@@ -167,33 +178,34 @@ export default {
       //date of birth
       let amountOfDay = 30
       let dd = ''
-      let m31 = ['01', '03', '05', '07', '08', '10', '12']
-      let mm = this.addZero(Math.floor((Math.random() * (12+1))+1))
-      if(mm == '02') amountOfDay = 28
-      else if(m31.find(el => el == mm)) amountOfDay = 31
-      dd = this.addZero(Math.floor((Math.random() * amountOfDay)+1).toString())
-      let year = currYear - Math.floor(Math.random() * (parseInt(age[1]) + 1 - parseInt(age[0])) + parseInt(age[0]));
-
-      this.dateOfBirth = mm + '-' + dd + '-' + year
+      let m31 = [1, 3, 5, 7, 8, 10, 12]
+      let mm = (Math.floor((Math.random() * (12+1))+1))
+      if(mm === 2) {
+        amountOfDay = 28
+      } else {
+        if(m31.find(el => el === mm)) {
+          amountOfDay = 31
+        }
+      }
+      dd = (Math.floor((Math.random() * amountOfDay)+1))
+      let yyyy = this.currYear - Math.floor(Math.random() * (parseInt(age[1]) + 1 - parseInt(age[0])) + parseInt(age[0]));
+      let generatedDate = new Date(yyyy, mm-1, dd)
+      this.dateOfBirth = Date.parse(generatedDate)
+      console.log("%%% ", generatedDate)
     },
     createAutoNewUser(params){
       let age = params.ageRange.split(" ")
-      let currYear = new Date().getFullYear();
       for (let i = 0; i < params.amount; i++) {
-        this.fillNewUser(params.numberOfChar, age, currYear)
+        this.fillNewUser(params.numberOfChar, age)
         this.createNewUser()
         this.cancelHandler()
       }
     },
-    addZero(number){
-      if(number < 10) number = '0' + number
-      return number.toString()
-    }
   },
   mounted() {
     this.$eventBus.$on('selectedUser', (selectedUser) => {
       if (selectedUser.length) this.setOldInfo(selectedUser)
-    }),
+    })
 
     this.$eventBus.$on('usersGenerated', (params) => {
       this.createAutoNewUser(params);
@@ -209,6 +221,7 @@ form {
   background: #eaf7fd;
   border-radius: 10px;
 }
+
 input {
   margin: 3px;
 }

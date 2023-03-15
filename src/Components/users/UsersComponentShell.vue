@@ -58,9 +58,6 @@ export default {
     },
     addUser(user){
       this.usersArr.push(user)
-      this.pushDataToLocalStorage()
-    },
-    pushDataToLocalStorage(){
       localStorage.setItem('users', JSON.stringify(this.usersArr))
     },
     editUser(user, position){
@@ -70,7 +67,7 @@ export default {
       this.usersArr[position].pass = user.pass
       this.usersArr[position].dateOfBirth = user.dateOfBirth
       this.usersArr[position].email = user.email
-      this.pushDataToLocalStorage()
+      localStorage.setItem('users', JSON.stringify(this.usersArr))
     },
     deleteUser(){
       console.log("delete user ")
