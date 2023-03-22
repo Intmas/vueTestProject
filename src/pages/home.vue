@@ -7,7 +7,14 @@
 </template>
 
 <script>
+import {API} from "../api";
 export default{
+  name: "Home",
+  mounted() {
+    console.log("response.data")
+    API.get('/data.json').then( response => {console.log(response.data)}).catch(error => {console.log(error)});
+    console.log("response.data")
+  }
 }
 </script>
 

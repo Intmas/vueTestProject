@@ -56,10 +56,10 @@
 import DateConverter from "../../Utils/dateConverter";
 
 export default {
-  props: ['usersArr', 'users'],
   name: "UsersList",
   data() {
     return {
+      usersArr: [],
       selectedUsers: [],
       amountUsers: 0,
       currPage: 0,
@@ -71,14 +71,6 @@ export default {
   },
   methods: {
     formatFunc(){},
-    deleteUsers() {
-      for (let nameDel of this.selectedUsers) {
-        let position = this.usersArr.findIndex(user => user.name === nameDel)
-        this.usersArr.splice(position, 1)
-      }
-      localStorage.setItem('users', JSON.stringify(this.usersArr))
-      this.selectedUsers = []
-    },
     prevPage(){
       this.currPage--
       this.toTop()
@@ -129,6 +121,9 @@ export default {
     console.log("dateConverter: ", this.formatter.getTest());
     this.$eventBus.$on('callDeleteUser', () => {
       this.deleteUsers()
+    })
+    this.$eventBus.$on('getUsersArr', (usersArr) => {
+      this.usersArr = usersArr
     })
     this.$eventBus.$on('selectionCleared', () => {
       this.selectedUsers = []

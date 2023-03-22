@@ -1,8 +1,8 @@
 <template>
 <div class="container">
   <modal-admin-menu></modal-admin-menu>
-  <user-form v-show="!showMenuBtn" :usersArr="usersArr"></user-form>
-  <users-list v-show="showMenuBtn" :usersArr="usersArr"></users-list>
+  <user-form v-show="!showMenuBtn"></user-form>
+  <users-list v-show="showMenuBtn"></users-list>
   <div class="row">
     <div class="col">
       <button v-show="showMenuBtn" type="button" @click="gotoAddUserForm" class="btn btn-success">Add user</button>
@@ -27,73 +27,87 @@ export default {
   },
   data() {
     return {
-      usersArr: '',
-      usersCopy: [
-      {name: 'Владислав', dateOfBirth: '17-08-2001', pass: 'Tr54*3_eF', email: 'sdf@mail.com'},
-      {name: 'Андрей', dateOfBirth: '08-12-2000', pass: 'Tsaf*3_eF', email: 'asdx15@mail.com'},
-      {name: 'Ольга', dateOfBirth: '15-07-1986', pass: 'Tsaasdwf*3_eF', email: 'as15@mail.com'},
-      {name: 'Наталья', dateOfBirth: '24-12-1999', pass: 'Tsafyt*3_eF', email: 'ddfx15@mail.com'},
-      {name: 'Евгений', dateOfBirth: '04-10-1997', pass: 'Tsasf*3_eF', email: 'ascfe@mail.com'},
-    ],
+      users:[
+        {"name":"Nbnhn","pass":"9j1uszwe","dateOfBirth":1022198400000,"email":"Nbnhn0@mail.auto"},
+      ],
       user: {},
+      position: '',
       showMenuBtn: true,
       deleteMode: false,
-      selectedUser: [],
       amountUsers: 0,
     }
   },
   methods: {
     gotoAddUserForm(){
-      this.$eventBus.$emit('selectedUser', [])
+      this.$eventBus.$emit('selectedUser', '')
       this.showMenuBtn = false;
     },
     gotoEditUserForm(){
-      this.$eventBus.$emit('selectedUser', this.selectedUser)
+      this.position = this.usersArr.findIndex(user => user.name === this.selectedUsers[0])
+      this.$eventBus.$emit('selectedUser', this.usersArr[this.position])
       this.showMenuBtn = false;
     },
     gotoUserList(){
       this.clearSelection()
-      this.selectedUser = []
       this.showMenuBtn = true
     },
     addUser(user){
       this.usersArr.push(user)
       localStorage.setItem('users', JSON.stringify(this.usersArr))
     },
-    editUser(user, position){
-      console.log(Object.keys(this.usersArr))
+    editUser(user){
       console.log(Object.keys(this.user))
-      this.usersArr[position].name = user.name
-      this.usersArr[position].pass = user.pass
-      this.usersArr[position].dateOfBirth = user.dateOfBirth
-      this.usersArr[position].email = user.email
-      localStorage.setItem('users', JSON.stringify(this.usersArr))
+      this.usersArr[this.position].name = user.name
+      this.usersArr[this.position].pass = user.pass
+      this.usersArr[this.position].dateOfBirth = user.dateOfBirth
+      this.usersArr[this.position].email = user.email
     },
     deleteUser(){
-      console.log("delete user ")
-      this.$eventBus.$emit('callDeleteUser')
+      for (let nameDel of this.selectedUsers) {
+        let position = this.usersArr.findIndex(user => user.name === nameDel)
+        this.usersArr.splice(position, 1)
+      }
+      this.$store.commit('clearSelection')
+      this.$eventBus.$emit('selectionCleared')
     },
     clearSelection(){
-      this.selectedUser = []
+      this.$store.commit('clearSelection')
       this.$eventBus.$emit('selectionCleared')
     },
     getSelectedUsers(selectedUser) {
-      this.selectedUser = selectedUser
+      this.$store.commit('setSelected', selectedUser)
     },
   },
   computed: {
-    selectedUsersLength(){
-      return this.selectedUser.length
+    usersArr: {
+      get() {
+        return this.$store.getters.users
+      },
+      set(value) {
+        this.$store.commit('setUsersArr', value)
+      }
+    },
+    selectedUsers() {
+        return this.$store.getters.selectedUsers
+    },
+    selectedUsersLength() {
+      return this.$store.getters.selectedUsersLength
+    },
+  },
+  watch: {
+    usersArr() {
+      this.$eventBus.$emit('getUsersArr', this.usersArr)
     },
   },
   created() {
+    this.$store.commit('setUsersArr', this.users)
+    this.$store.commit('clearSelection', this.selectedUser)
     document.addEventListener('keydown', (event) =>{
       if(event.altKey && event.code === "KeyX") {
         this.$eventBus.$emit('showModal')
         event.preventDefault();
       }
     });
-    this.usersArr = JSON.parse(localStorage.getItem('users'))
   },
   mounted() {
     this.$eventBus.$on('handlerСanceled', () => {
@@ -102,8 +116,8 @@ export default {
     this.$eventBus.$on('addFormSubmitted', (user) => {
       this.addUser(user);
     })
-    this.$eventBus.$on('editFormSubmitted', (user, position) => {
-      this.editUser(user, position);
+    this.$eventBus.$on('editFormSubmitted', (user) => {
+      this.editUser(user);
     })
     this.$eventBus.$on('getSelectedUser', (selectedUser) => {
       this.getSelectedUsers(selectedUser);

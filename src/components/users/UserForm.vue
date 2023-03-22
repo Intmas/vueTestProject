@@ -1,6 +1,7 @@
 <template>
  <div>
-   <h2 v-if="selectedUser.length === 0">New users</h2>
+   {{ mode }}
+   <h2 v-if="mode === 0">New users</h2>
    <h2 v-else>Edit users</h2>
    <h5>Input data of user</h5>
    <form class="user-form">
@@ -46,14 +47,14 @@
      <button
        class="btn btn-outline-secondary my-2"
        :disabled="$v.$invalid"
-       v-if="selectedUser.length === 0"
+       v-if="mode === 0"
        @click.prevent="createNewUser"
      >Save Information
      </button>
 
      <button
        class="btn btn-outline-secondary my-2"
-       v-if="selectedUser.length === 0"
+       v-if="mode === 0"
        @click.prevent="fillNewUser(5)"
      >Fill in the fields
      </button>
@@ -81,16 +82,16 @@ import { required, email, minLength, alphaNum } from 'vuelidate/lib/validators'
 import dateConverter from "../../Utils/dateConverter";
 
 export default {
-  props: ['usersArr'],
   data() {
     return {
       date: new Date(),
       name: '',
       validatedEmail: '',
+      usersArr: [],
       password: '',
       user: {},
       position: '',
-      selectedUser: [],
+      mode: 0,
       dateOfBirth: {},
       timestamp: 0,
       id: 0,
@@ -124,12 +125,12 @@ export default {
     },
     clearForm(){
       this.name = ''
+      this.mode = 0
       this.validatedEmail = ''
       this.password = ''
       this.dateOfBirth = ''
       this.user = {}
       this.position = ''
-      this.selectedUser = []
       this.$v.$reset()
     },
     createNewUser: function () {
@@ -141,7 +142,7 @@ export default {
     },
     editUser: function () {
       this.setUserInfo()
-      this.$eventBus.$emit("editFormSubmitted", this.user, this.position)
+      this.$eventBus.$emit("editFormSubmitted", this.user)
       this.$toasted.success('User edited!')
       this.cancelHandler()
     },
@@ -153,9 +154,7 @@ export default {
       this.user.email = this.validatedEmail
     },
     setOldInfo(selectedUser) {
-      this.selectedUser = selectedUser
-      this.position = this.usersArr.findIndex(user => user.name === selectedUser[0])
-      this.user = this.usersArr[this.position]
+      this.user = selectedUser
       this.name = this.user.name
       this.password = this.user.pass
       this.dateOfBirth =  this.formatter.getDateInputFormat(this.user.dateOfBirth)
@@ -205,9 +204,14 @@ export default {
   mounted() {
     this.formatter = new dateConverter();
     this.$eventBus.$on('selectedUser', (selectedUser) => {
-      if (selectedUser.length) this.setOldInfo(selectedUser)
+      if(selectedUser !== '') {
+        this.mode = 1
+        this.setOldInfo(selectedUser)
+      }
     })
-
+    this.$eventBus.$on('getUsersArr', (usersArr) => {
+      this.usersArr = usersArr
+    })
     this.$eventBus.$on('usersGenerated', (params) => {
       this.createAutoNewUser(params);
     })

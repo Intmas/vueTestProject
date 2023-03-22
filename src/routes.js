@@ -1,9 +1,9 @@
 import VueRouter from 'vue-router';
 import Home from './pages/home.vue'
-import AddUser from "./Components/users/UserForm.vue";
-import EditUser from "./Components/users/ModalAdminMenu.vue";
-import UsersList from "./Components/users/UsersList.vue";
-import UsersComponentShell from "./Components/users/UsersComponentShell.vue";
+import AddUser from "./components/users/UserForm.vue";
+import EditUser from "./components/users/ModalAdminMenu.vue";
+import UsersList from "./components/users/UsersList.vue";
+import UsersComponentShell from "./components/users/UsersComponentShell.vue";
 
 export default new VueRouter({
     routes: [
